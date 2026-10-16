@@ -134,26 +134,25 @@ namespace API_Proj.Controllers
             [ProducesResponseType(StatusCodes.Status409Conflict)]
             public async Task<IActionResult> DeleteCategory(int id)
             {
-
-                //A search function that will allow the organiser to delete certain categories  
                 var category = await _context.Categories.FindAsync(id);
                 if (category == null)
-                    return NotFound("Category not found.");//if the category is not found display an appropiate message 
+                    return NotFound("Category not found.");
 
                 var ev = await _context.Events.FindAsync(category.EventID);
                 if (ev == null || ev.OrganiserID != CurrentUserId)
-                    return Forbid(); //verify organiser ownership if they own the category assigned to the ID 
+                    return Forbid();
 
-                //Check RacedayDB
-                var hasEnrollments = await _context.Enrollments.AnyAsync(e => e.CategoryID == id);//check in the RacedayDB if any events reference this category ID
-                var usedByEvent = await _context.Events.AnyAsync(e => e.CategoryID == id);//Check if any events use this category
-                if (hasEnrollments || usedByEvent) //if any category is uded by the events we will block the delete function
-                    return Conflict("This category is in use by enrolments or an event and cannot be deleted.");
+                var hasEnrollments = await _context.Enrollments.AnyAsync(e => e.CategoryID == id);
+                if (hasEnrollments)
+                    return Conflict("This category has enrolments and cannot be deleted.");
 
-                _context.Categories.Remove(category);//remove the category upon successful delete request ,no changes will occur in the database yet
-                await _context.SaveChangesAsync();//Save the changes into the database 
-                return NoContent();//Returns 204 No Content,
+                // unlink the event if it points at this category
+                if (ev.CategoryID == id)
+                    ev.CategoryID = null;
 
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+                return NoContent();
             }
         }
     }

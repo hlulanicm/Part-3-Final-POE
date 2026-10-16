@@ -16,7 +16,7 @@ namespace API_proj.Models
 
         [Required, StringLength(100)]
 
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty; //new email field : Excluded from Part 1 ERD
 
 
      [Required, StringLength(255)]

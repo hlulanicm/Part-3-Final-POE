@@ -83,14 +83,14 @@ namespace API_proj.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
+                 new Claim(ClaimTypes.Name, user.UserName),
 
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
+                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
 
             return Ok(new { user.UserID, user.UserName, user.Role });
